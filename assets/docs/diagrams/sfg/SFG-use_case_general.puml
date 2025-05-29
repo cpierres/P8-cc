@@ -8,41 +8,47 @@ skinparam actor {
   FontColor<<Interne>> Blue
 }
 
-actor "Client Autonome" as clientAuto
 actor "Client Géré" as clientGere
+actor "Client Autonome" as clientAuto
 actor "Service Commercial" as commercial <<Interne>>
 actor "Service Livraisons" as livraisons <<Interne>>
+actor "Administrateur" as admin <<Interne>>
 
 rectangle "Application LiVrai" {
-  usecase "S'inscrire" as UC1
-  usecase "Se connecter" as UC2
-  usecase "Gérer son profil" as UC3
-  usecase "Créer un compte client" as UC8
-  usecase "Gérer les comptes clients" as UC7
-  usecase "Créer une demande de livraison" as UC4
-  usecase "Suivre ses livraisons" as UC5
-  usecase "Consulter ses factures" as UC6
+
+  together {
+    usecase "S'inscrire" as UC1
+    usecase "Se connecter" as UC2
+    usecase "Gérer son profil" as UC3
+  }
+
+  together {
+    usecase "Créer une demande de livraison" as UC4
+    usecase "Suivre ses livraisons" as UC5
+    usecase "Consulter ses factures" as UC6
+  }
+
+   usecase "Gérer les utilisateurs" as UC8
+
+  together {
+    usecase "Gérer les comptes clients" as UC7
+    usecase "Établir les factures" as UC11
+    usecase "Consulter les rapports financiers" as UC12
+  }
 
   usecase "Traiter les demandes de livraison" as UC9
   usecase "Mettre à jour le statut des livraisons" as UC10
-  usecase "Établir les factures" as UC11
-  usecase "Consulter les rapports financiers" as UC12
 }
 
+clientAuto <|-- clientGere
 clientAuto --> UC1
-clientAuto --> UC2
-clientAuto --> UC3
-clientAuto --> UC4
-clientAuto --> UC5
-clientAuto --> UC6
-
 clientGere --> UC2
 clientGere --> UC3
 clientGere --> UC4
 clientGere --> UC5
 clientGere --> UC6
+admin --> UC8
 
-UC1 <-- commercial
 UC2 <-- commercial
 UC3 <-- commercial
 UC7 <-- commercial
@@ -52,10 +58,7 @@ UC11 <-- commercial
 
 UC9 <-- livraisons
 UC10 <-- livraisons
-UC11 <-- livraisons
-
 
 commercial -right-> UC2
-livraisons -right-> UC9
 
 @enduml

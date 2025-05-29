@@ -1,0 +1,41 @@
+@startuml
+start
+:Utilisateur accède au site;
+
+if (Possède un compte?) then (non)
+  :Cliquer sur "S'inscrire";
+  :Remplir le formulaire d'inscription;
+  :Valider l'email;
+  :Compte créé;
+else (oui)
+  :Se connecter;
+endif
+
+:Accéder au tableau de bord;
+
+fork
+  :Gérer son profil;
+fork again
+  :Créer une demande de livraison;
+  :Remplir les détails du colis;
+  :Soumettre la demande;
+
+  :Service Livraisons examine la demande;
+
+  if (Demande acceptée?) then (oui)
+    :Statut mis à jour (ACCEPTED);
+    :Livraison planifiée;
+    :Livraison effectuée;
+    :Facturation;
+  else (non)
+    :Statut mis à jour (REJECTED);
+    :Notification de refus envoyée;
+  endif
+fork again
+  :Consulter l'historique des livraisons;
+fork again
+  :Consulter les factures;
+end fork
+
+stop
+@enduml

@@ -1,0 +1,52 @@
+@startuml
+actor "Client" as client
+actor "Service Livraisons" as livraisons
+participant "Frontend Angular" as frontend
+participant "Backend Spring" as backend
+database "Base de données" as db
+
+== Création de la demande ==
+client -> frontend: Remplit formulaire de livraison
+frontend -> backend: POST /api/deliveries
+backend -> db: Enregistre la demande (status: PENDING)
+backend --> frontend: 201 Created
+frontend --> client: Confirmation de la demande
+
+== Traitement de la demande ==
+livraisons -> frontend: Consulte les demandes en attente
+frontend -> backend: GET /api/deliveries?status=PENDING
+backend -> db: Récupère les demandes en attente
+db --> backend: Liste des demandes
+backend --> frontend: 200 OK + Liste
+frontend --> livraisons: Affiche les demandes
+
+livraisons -> frontend: Accepte la demande
+frontend -> backend: PUT /api/deliveries/{id}/status
+backend -> db: Met à jour le statut (ACCEPTED)
+backend -> backend: Envoie notification
+backend --> frontend: 200 OK
+frontend --> livraisons: Confirmation
+
+== Suivi de la livraison ==
+client -> frontend: Consulte ses livraisons
+frontend -> backend: GET /api/deliveries?userId={id}
+backend -> db: Récupère les livraisons
+db --> backend: Liste des livraisons
+backend --> frontend: 200 OK + Liste
+frontend --> client: Affiche les livraisons
+
+== Facturation ==
+livraisons -> frontend: Complète la livraison et facture
+frontend -> backend: PUT /api/deliveries/{id}/bill
+backend -> db: Met à jour statut (FINISHED) et prix
+backend -> backend: Génère facture
+backend --> frontend: 200 OK
+frontend --> livraisons: Confirmation
+
+client -> frontend: Consulte ses factures
+frontend -> backend: GET /api/invoices?userId={id}
+backend -> db: Récupère les factures
+db --> backend: Liste des factures
+backend --> frontend: 200 OK + Liste
+frontend --> client: Affiche les factures
+@enduml
