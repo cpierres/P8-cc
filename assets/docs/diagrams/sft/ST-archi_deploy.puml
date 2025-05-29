@@ -1,0 +1,58 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam backgroundColor white
+skinparam monochrome true
+
+title Architecture Technique de la Nouvelle Application LiVrai
+
+node "Client" as client {
+  [Navigateur Web] as browser
+}
+
+cloud "Environnement Docker" {
+  node "Frontend Container" as frontend_container {
+    [Angular SPA] as angular
+    [Services HTTP] as http_services
+    [Composants UI] as ui_components
+    [State Management] as state
+  }
+
+  node "Backend Container" as backend_container {
+    [Spring Boot API] as spring_boot
+
+    package "API Layer" {
+      [REST Controllers] as controllers
+    }
+
+    package "Business Layer" {
+      [Services] as services
+    }
+
+    package "Data Access Layer" {
+      [Repositories] as repositories
+    }
+
+    package "Security" {
+      [Spring Security] as security
+      [JWT Provider] as jwt
+    }
+  }
+
+  database "Database Container" as db_container {
+    [MySQL] as mysql
+  }
+}
+
+browser --> angular : HTTPS
+angular --> http_services : appelle
+http_services --> spring_boot : REST API calls
+ui_components --> state : utilise
+state --> http_services : déclenche
+
+controllers --> services : utilise
+services --> repositories : utilise
+repositories --> mysql : requêtes SQL
+controllers --> security : vérifie autorisations
+security --> jwt : valide tokens
+
+@enduml
