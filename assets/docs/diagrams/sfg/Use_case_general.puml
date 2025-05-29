@@ -1,0 +1,51 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Client Autonome" as clientAuto
+actor "Client Géré" as clientGere
+actor "Service Commercial" as commercial
+actor "Service Livraisons" as livraisons
+
+rectangle "Application LiVrai" {
+  usecase "S'inscrire" as UC1
+  usecase "Se connecter" as UC2
+  usecase "Gérer son profil" as UC3
+  usecase "Créer une demande de livraison" as UC4
+  usecase "Suivre ses livraisons" as UC5
+  usecase "Consulter ses factures" as UC6
+  usecase "Gérer les comptes clients" as UC7
+  usecase "Créer un compte client" as UC8
+  usecase "Traiter les demandes de livraison" as UC9
+  usecase "Mettre à jour le statut des livraisons" as UC10
+  usecase "Établir les factures" as UC11
+  usecase "Consulter les rapports financiers" as UC12
+}
+
+clientAuto --> UC1
+clientAuto --> UC2
+clientAuto --> UC3
+clientAuto --> UC4
+clientAuto --> UC5
+clientAuto --> UC6
+
+clientGere --> UC2
+clientGere --> UC3
+clientGere --> UC4
+clientGere --> UC5
+clientGere --> UC6
+
+UC2 <-- commercial
+UC7 <-- commercial
+UC8 <-- commercial
+UC12 <-- commercial
+UC11 <-- commercial
+
+UC9 <-- livraisons
+UC10 <-- livraisons
+UC11 <-- livraisons
+
+commercial -right-> UC2
+livraisons -right-> UC9
+
+@enduml
