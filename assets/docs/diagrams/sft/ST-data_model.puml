@@ -1,0 +1,125 @@
+@startuml
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <b>x</b>
+!define foreign_key(x) <u>x</u>
+!define unique(x) <i>x</i>
+!define not_null(x) <b><i>x</i></b>
+
+title Data Model
+
+' User entity with roles
+table(User) {
+  primary_key(id) : INT
+  unique(email) : VARCHAR(255)
+  not_null(username) : VARCHAR(100)
+  not_null(password) : VARCHAR(255) ' Hashed password
+  not_null(firstName) : VARCHAR(100)
+  not_null(lastName) : VARCHAR(100)
+  phone : VARCHAR(20)
+  not_null(role) : ENUM ' CLIENT, COMMERCIAL, DELIVERY_SERVICE, ADMIN
+  not_null(createdAt) : TIMESTAMP
+  updatedAt : TIMESTAMP
+  lastLogin : TIMESTAMP
+  not_null(active) : BOOLEAN
+}
+
+' Client entity
+table(Client) {
+  primary_key(id) : INT
+  foreign_key(userId) : INT
+  not_null(companyName) : VARCHAR(255)
+  not_null(address) : VARCHAR(255)
+  city : VARCHAR(100)
+  postalCode : VARCHAR(20)
+  country : VARCHAR(100)
+  not_null(taxId) : VARCHAR(50)
+  not_null(managedByCommercial) : BOOLEAN
+  foreign_key(commercialUserId) : INT ' NULL if not managed
+  not_null(createdAt) : TIMESTAMP
+  updatedAt : TIMESTAMP
+}
+
+' Delivery entity
+table(Delivery) {
+  primary_key(id) : INT
+  foreign_key(clientId) : INT
+  not_null(reference) : VARCHAR(50) ' Unique reference number
+  not_null(status) : ENUM ' PENDING, ACCEPTED, IN_TRANSIT, DELIVERED, REJECTED, CANCELLED
+  not_null(createdAt) : TIMESTAMP
+  scheduledDate : TIMESTAMP
+  deliveredDate : TIMESTAMP
+  not_null(volume) : DECIMAL(10,2)
+  not_null(weight) : DECIMAL(10,2)
+  description : TEXT
+  pickupAddress : VARCHAR(255)
+  not_null(deliveryAddress) : VARCHAR(255)
+  specialInstructions : TEXT
+  foreign_key(assignedToUserId) : INT ' Delivery service user assigned
+  updatedAt : TIMESTAMP
+}
+
+' Package entity (for multiple items in a delivery)
+table(Package) {
+  primary_key(id) : INT
+  foreign_key(deliveryId) : INT
+  not_null(description) : VARCHAR(255)
+  not_null(quantity) : INT
+  not_null(weight) : DECIMAL(10,2)
+  not_null(volume) : DECIMAL(10,2)
+  fragile : BOOLEAN
+  specialHandling : TEXT
+}
+
+' Tracking entity
+table(DeliveryTracking) {
+  primary_key(id) : INT
+  foreign_key(deliveryId) : INT
+  not_null(status) : ENUM ' Various detailed statuses
+  not_null(timestamp) : TIMESTAMP
+  not_null(location) : VARCHAR(255)
+  notes : TEXT
+  foreign_key(updatedByUserId) : INT
+}
+
+' Invoice entity
+table(Invoice) {
+  primary_key(id) : INT
+  foreign_key(deliveryId) : INT
+  foreign_key(clientId) : INT
+  not_null(invoiceNumber) : VARCHAR(50)
+  not_null(issueDate) : TIMESTAMP
+  dueDate : TIMESTAMP
+  not_null(amount) : DECIMAL(10,2)
+  not_null(tax) : DECIMAL(10,2)
+  not_null(totalAmount) : DECIMAL(10,2)
+  not_null(status) : ENUM ' DRAFT, ISSUED, PAID, OVERDUE, CANCELLED
+  paymentDate : TIMESTAMP
+  paymentReference : VARCHAR(100)
+  notes : TEXT
+}
+
+' Notification entity
+table(Notification) {
+  primary_key(id) : INT
+  foreign_key(userId) : INT
+  not_null(type) : ENUM ' EMAIL, SMS, IN_APP
+  not_null(message) : TEXT
+  not_null(createdAt) : TIMESTAMP
+  sentAt : TIMESTAMP
+  readAt : TIMESTAMP
+  not_null(status) : ENUM ' PENDING, SENT, FAILED, READ
+  relatedEntityType : VARCHAR(50) ' e.g., "delivery", "invoice"
+  relatedEntityId : INT
+}
+
+' Relationships
+User "1" -- "0..1" Client : has >
+User "1" -- "*" Delivery : manages >
+Client "1" -- "*" Delivery : orders >
+Client "1" -- "*" Invoice : receives >
+Delivery "1" -- "*" Package : contains >
+Delivery "1" -- "*" DeliveryTracking : tracks >
+Delivery "1" -- "0..1" Invoice : billed by >
+User "1" -- "*" Notification : receives >
+
+@enduml
