@@ -1,0 +1,39 @@
+@startuml
+skinparam state {
+  BackgroundColor<<Initial>> #87CEFA
+  BackgroundColor<<Terminal>> #FF6347
+}
+
+[*] --> PENDING : Le client crée la livraison
+note right of PENDING : "En attente"
+
+PENDING --> ACCEPTED : L'administrateur accepte la livraison
+note right of ACCEPTED : "Acceptée"
+
+PENDING --> REJECTED : L'administrateur rejette la livraison
+note right of REJECTED : "Refusée"
+
+ACCEPTED --> FINISHED : L'admin facture la livraison\navec prix
+note right of FINISHED : "Terminée"
+
+REJECTED --> [*]
+FINISHED --> [*]
+
+state PENDING {
+  state "En attente examen par admin" as waiting
+}
+
+state ACCEPTED {
+  state "Traitement de la livraison" as processing
+}
+
+state REJECTED <<Terminal>> {
+  state "Livraison annulée" as cancelled
+}
+
+state FINISHED <<Terminal>> {
+  state "Livraison terminée" as completed
+  state "Prix fixé" as priced
+  completed --> priced
+}
+@enduml

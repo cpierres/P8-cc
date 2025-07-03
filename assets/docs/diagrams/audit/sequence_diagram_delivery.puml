@@ -1,0 +1,78 @@
+@startuml
+actor Client
+actor Admin
+participant "CommandServlet" as CS
+participant "DeliveryServlet" as DS
+participant "DeliveriesServlet" as DSS
+participant "DeliveryDao" as DAO
+database "Database" as DB
+
+== Création demande Livraison ==
+Client -> CS: Créer Demande de Livraison
+activate CS
+CS -> DAO: createDelivery()
+activate DAO
+DAO -> DB: INSERT INTO delivery
+activate DB
+DB --> DAO: Success
+deactivate DB
+DAO --> CS: Return
+deactivate DAO
+CS --> Client: Affiche Confirmation
+deactivate CS
+
+== Traitement Livraison ==
+Admin -> DSS: Afficher Livraisons
+activate DSS
+DSS -> DAO: getAllDeliveries()
+activate DAO
+DAO -> DB: SELECT * FROM delivery
+activate DB
+DB --> DAO: Delivery Data
+deactivate DB
+DAO --> DSS: Liste Livraison
+deactivate DAO
+DSS --> Admin: Affiche Livraisons
+deactivate DSS
+
+Admin -> DS: Accepte Livraison
+activate DS
+DS -> DAO: acceptDeliveryById()
+activate DAO
+DAO -> DB: UPDATE delivery SET status = 'Acceptée'
+activate DB
+DB --> DAO: Success
+deactivate DB
+DAO --> DS: Return
+deactivate DAO
+DS --> Admin: Redirige vers Livraisons
+deactivate DS
+
+== Facturation livraison ==
+Admin -> DS: Facture Livraison
+activate DS
+DS -> DAO: billDeliveryById()
+activate DAO
+DAO -> DB: UPDATE delivery SET status = 'Terminée', price = ?
+activate DB
+DB --> DAO: Success
+deactivate DB
+DAO --> DS: Return
+deactivate DAO
+DS --> Admin: Redirige vers Livraisons
+deactivate DS
+
+== Afficher Livraisons ==
+Client -> DSS: Affiche Livraisons
+activate DSS
+DSS -> DAO: getAllDeliveriesByUserId()
+activate DAO
+DAO -> DB: SELECT * FROM delivery WHERE userId = ?
+activate DB
+DB --> DAO: Delivery Data
+deactivate DB
+DAO --> DSS: Liste Livraison
+deactivate DAO
+DSS --> Client: Affiche livraisons
+deactivate DSS
+@enduml

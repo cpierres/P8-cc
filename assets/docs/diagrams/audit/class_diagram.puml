@@ -1,0 +1,121 @@
+@startuml
+package "com.livrai.bean" {
+  class User {
+    -id: int
+    -email: String
+    -name: String
+    -password: String
+    -isAdmin: boolean
+    +User()
+    +User(id: int, email: String, name: String, password: String, isAdmin: boolean)
+    +getId(): int
+    +setId(id: int): void
+    +getEmail(): String
+    +setEmail(email: String): void
+    +getName(): String
+    +setName(name: String): void
+    +getPassword(): String
+    +setPassword(password: String): void
+    +isAdmin(): boolean
+    +setAdmin(isAdmin: boolean): void
+  }
+  
+  class Delivery {
+    +{static} PENDING: String
+    +{static} ACCEPTED: String
+    +{static} REJECTED: String
+    +{static} FINISHED: String
+    -id: int
+    -userId: int
+    -volume: int
+    -weight: int
+    -price: double
+    -status: String
+    -clientName: String
+    +Delivery()
+    +Delivery(id: int, userId: int, volume: int, weight: int, price: double, status: String)
+    +getId(): int
+    +setId(id: int): void
+    +getUserId(): int
+    +setUserId(userId: int): void
+    +getVolume(): int
+    +setVolume(volume: int): void
+    +getWeight(): int
+    +setWeight(weight: int): void
+    +getPrice(): double
+    +setPrice(price: double): void
+    +getStatus(): String
+    +setStatus(status: String): void
+    +getClientName(): String
+    +setClientName(clientName: String): void
+  }
+}
+
+package "com.livrai.dao" {
+  abstract class AbstractDao {
+    -connection: Connection
+    #getConnection(): Connection
+    #execute(query: SqlQuery<T>): T
+    #loadDatabase(): void
+    #{interface} SqlQuery<T>
+  }
+  
+  class UserDao {
+    +addUser(user: User): Void
+    +getUserById(id: int): User
+    +getUserByEmail(email: String): User
+    +getAllNonAdminUsers(): List<User>
+    +updateUser(user: User): Void
+  }
+  
+  class DeliveryDao {
+    +createDelivery(delivery: Delivery): Void
+    +getDeliveryById(id: int): Delivery
+    +getAllDeliveries(): List<Delivery>
+    +getAllDeliveriesByUserId(userId: int): List<Delivery>
+    +acceptDeliveryById(id: int): Void
+    +rejectDeliveryById(id: int): Void
+    +billDeliveryById(id: int, price: double): Void
+    +deleteDelivery(id: int): Void
+  }
+}
+
+package "com.livrai.servlet" {
+  class HomeServlet {
+    +doGet(request: HttpServletRequest, response: HttpServletResponse): void
+  }
+
+  class ClientsServlet {
+    +doGet(request: HttpServletRequest, response: HttpServletResponse): void
+    +doPost(request: HttpServletRequest, response: HttpServletResponse): void
+  }
+  
+  class DeliveriesServlet {
+    +doGet(request: HttpServletRequest, response: HttpServletResponse): void
+  }
+  
+  class DeliveryServlet {
+    +doPost(request: HttpServletRequest, response: HttpServletResponse): void
+  }
+  
+  class CommandServlet {
+    +doGet(request: HttpServletRequest, response: HttpServletResponse): void
+    +doPost(request: HttpServletRequest, response: HttpServletResponse): void
+  }
+}
+
+UserDao --|> AbstractDao
+DeliveryDao --|> AbstractDao
+
+UserDao ..> User : creates/reads/updates
+DeliveryDao ..> Delivery : creates/reads/updates
+
+ClientsServlet ..> UserDao : uses
+DeliveriesServlet ..> DeliveryDao : uses
+DeliveriesServlet ..> UserDao : uses
+DeliveryServlet ..> DeliveryDao : uses
+DeliveryServlet ..> UserDao : uses
+CommandServlet ..> DeliveryDao : uses
+
+Delivery "0..*" -- "1" User : Appartient à >
+@enduml

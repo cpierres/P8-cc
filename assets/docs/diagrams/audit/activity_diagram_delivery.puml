@@ -1,0 +1,27 @@
+@startuml
+|Client|
+start
+:Login;
+:Navigue vers page Commande;
+:Remplit fiche Livraison;
+:Soumet Livraison;
+|System|
+:Crée Livraison avec statut PENDING;
+|Admin|
+:Login;
+:Affiche Livraisons;
+if (Accept Livraison?) then (yes)
+  :Update Statut à ACCEPTED;
+else (no)
+  :Update Statut à REJECTED;
+  stop
+endif
+:Traite livraison;
+:Facture livraison;
+|System|
+:Update Statut à FINISHED;
+:Fixe le prix;
+|Client|
+:Afficher la livraison terminée;
+stop
+@enduml
