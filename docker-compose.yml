@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: livrai-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: livrai
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db/init-script.sql:/docker-entrypoint-initdb.d/init-script.sql
+      - mysql-data:/var/lib/mysql
+    networks:
+      - livrai-network
+
+  tomcat:
+    image: tomcat:9.0.104-jdk8-corretto-al2
+    container_name: livrai-tomcat
+    restart: always
+    ports:
+      - "8080:8080"
+      - "5005:5005"  # Remote debugging port
+    volumes:
+      - ./app/target/app.war:/usr/local/tomcat/webapps/app.war
+      - ./index.html:/usr/local/tomcat/webapps/ROOT/index.html
+    depends_on:
+      - mysql
+    networks:
+      - livrai-network
+    environment:
+      - JAVA_OPTS=-Dspring.profiles.active=docker -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+      - DB_HOST=mysql
+
+volumes:
+  mysql-data:
+
+networks:
+  livrai-network:
+    driver: bridge

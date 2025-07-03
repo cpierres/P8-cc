@@ -30,4 +30,12 @@ Il est nécessaire de créer un utilisateur admin en base:
 INSERT INTO user (email, name, password, admin) VALUES
   ('<email>', 'Livrai', '<password>', TRUE);
 
+INSERT INTO user (email, name, password, admin) VALUES
+  ('admin@livrai.com', 'Livrai', 'pw', 1);  
+  
+INSERT INTO user (email, name, password, admin) VALUES
+  ('u1@test.com', 'client1', 'pw', 0);  
+
+commit;
+
 ```
